@@ -156,6 +156,102 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-whatmarkdown" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/28/whatmarkdown/">whatmarkdown</a>
+    </h1>
+  
+
+        
+        <a href="/2018/06/28/whatmarkdown/" class="archive-article-date">
+  	<time datetime="2018-06-28T07:52:51.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-28</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="mahua-logo.jpg" alt="mahua"></p>
+<p>##MaHua是什么?<br>一个在线编辑markdown文档的编辑器</p>
+<p>向Mac下优秀的markdown编辑器mou致敬</p>
+<p>##MaHua有哪些功能？</p>
+<ul>
+<li>方便的<code>导入导出</code>功能<ul>
+<li>直接把一个markdown的文本文件拖放到当前这个页面就可以了</li>
+<li>导出为一个html格式的文件，样式一点也不会丢失</li>
+</ul>
+</li>
+<li>编辑和预览<code>同步滚动</code>，所见即所得（右上角设置）</li>
+<li><code>VIM快捷键</code>支持，方便vim党们快速的操作 （右上角设置）</li>
+<li>强大的<code>自定义CSS</code>功能，方便定制自己的展示</li>
+<li>有数量也有质量的<code>主题</code>,编辑器和预览区域</li>
+<li>完美兼容<code>Github</code>的markdown语法</li>
+<li>预览区域<code>代码高亮</code></li>
+<li>所有选项自动记忆</li>
+</ul>
+<p>##有问题反馈<br>在使用中有任何问题，欢迎反馈给我，可以用以下联系方式跟我交流</p>
+<ul>
+<li>邮件(dev.hubo#gmail.com, 把#换成@)</li>
+<li>QQ: 287759234</li>
+<li>weibo: <a href="http://weibo.com/ihubo" target="_blank" rel="noopener">@草依山</a></li>
+<li>twitter: <a href="http://twitter.com/ihubo" target="_blank" rel="noopener">@ihubo</a></li>
+</ul>
+<p>##捐助开发者<br>在兴趣的驱动下,写一个<code>免费</code>的东西，有欣喜，也还有汗水，希望你喜欢我的作品，同时也能支持一下。<br>当然，有钱捧个钱场（右上角的爱心标志，支持支付宝和PayPal捐助），没钱捧个人场，谢谢各位。</p>
+<p>##感激<br>感谢以下的项目,排名不分先后</p>
+<ul>
+<li><a href="http://mouapp.com/" target="_blank" rel="noopener">mou</a> </li>
+<li><a href="http://ace.ajax.org/" target="_blank" rel="noopener">ace</a></li>
+<li><a href="http://jquery.com" target="_blank" rel="noopener">jquery</a></li>
+</ul>
+<p>##关于作者</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> ihubo = &#123;</span><br><span class="line">  nickName  : <span class="string">"草依山"</span>,</span><br><span class="line">  site : <span class="string">"http://jser.me"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/06/28/whatmarkdown/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Redis安装、集群搭建" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -177,71 +273,10 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>redis单节点的安装与启动<br>首先下载redis的安装包，<a href="http://download.redis.io/releases/redis-4.0.0.tar.gz" target="_blank" rel="noopener">http://download.redis.io/releases/redis-4.0.0.tar.gz</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf redis-4.0.0.tar.gz </span><br><span class="line"><span class="built_in">cd</span> redis-4.0.0</span><br><span class="line">make</span><br><span class="line">make install --prefix /usr/<span class="built_in">local</span>/redis</span><br><span class="line">cp redis.conf /usr/<span class="built_in">local</span>/redis/bin</span><br><span class="line">vim redis.conf</span><br></pre></td></tr></table></figure>
-<h1 id="默认是no，redis-server在前端进行，关闭shell之后，server进程就被终止了，修改为yes之后，成为后台守护进程"><a href="#默认是no，redis-server在前端进行，关闭shell之后，server进程就被终止了，修改为yes之后，成为后台守护进程" class="headerlink" title="默认是no，redis server在前端进行，关闭shell之后，server进程就被终止了，修改为yes之后，成为后台守护进程"></a>默认是no，redis server在前端进行，关闭shell之后，server进程就被终止了，修改为yes之后，成为后台守护进程</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">daemonize yes</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/redis/bin</span><br></pre></td></tr></table></figure>
-<h1 id="通过redis-conf启动redist-server，不指定启动配置文件会读取默认配置"><a href="#通过redis-conf启动redist-server，不指定启动配置文件会读取默认配置" class="headerlink" title="通过redis.conf启动redist server，不指定启动配置文件会读取默认配置"></a>通过redis.conf启动redist server，不指定启动配置文件会读取默认配置</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-server redis.conf</span><br></pre></td></tr></table></figure>
-<h1 id="启动redis交互式命令窗口"><a href="#启动redis交互式命令窗口" class="headerlink" title="启动redis交互式命令窗口"></a>启动redis交互式命令窗口</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-cli</span><br></pre></td></tr></table></figure>
-<h1 id="查看redis启动状态，在交互式命令窗口下"><a href="#查看redis启动状态，在交互式命令窗口下" class="headerlink" title="查看redis启动状态，在交互式命令窗口下"></a>查看redis启动状态，在交互式命令窗口下</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis 127.0.0.1:6379&gt; ping </span><br><span class="line">PONG</span><br></pre></td></tr></table></figure>
-<h1 id="返回PONG说明redis已经安装成功。"><a href="#返回PONG说明redis已经安装成功。" class="headerlink" title="返回PONG说明redis已经安装成功。"></a>返回PONG说明redis已经安装成功。</h1><h1 id="其中127-0-0-1可以在redis-conf中修改bind属性，最好将其改成本机实际的IP地址，"><a href="#其中127-0-0-1可以在redis-conf中修改bind属性，最好将其改成本机实际的IP地址，" class="headerlink" title="其中127.0.0.1可以在redis.conf中修改bind属性，最好将其改成本机实际的IP地址，"></a>其中127.0.0.1可以在redis.conf中修改bind属性，最好将其改成本机实际的IP地址，</h1><h1 id="例如10-4-121-202，否则在用client连接server的时候会出现问题"><a href="#例如10-4-121-202，否则在用client连接server的时候会出现问题" class="headerlink" title="例如10.4.121.202，否则在用client连接server的时候会出现问题"></a>例如10.4.121.202，否则在用client连接server的时候会出现问题</h1><p>在/usr/local/redis/bin目录下，还有以下的命令脚本</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redis-benchamrk   <span class="comment"># Redis性能测试工具</span></span><br><span class="line">redis-check-aof   <span class="comment"># AOF文件修复工具</span></span><br><span class="line">redis-check-dump  <span class="comment"># RDB文件检查工具</span></span><br></pre></td></tr></table></figure>
-<p>redis集群的部署与使用<br>集群的搭建依赖ruby环境，首先安装ruby的运行环境</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum -y install ruby</span><br><span class="line">yum -y install rubygems</span><br></pre></td></tr></table></figure>
-<h1 id="ruby和redis的接口程序"><a href="#ruby和redis的接口程序" class="headerlink" title="ruby和redis的接口程序"></a>ruby和redis的接口程序</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gem install redis</span><br></pre></td></tr></table></figure>
-<h1 id="如果下载不下来可以修改一下gems的源"><a href="#如果下载不下来可以修改一下gems的源" class="headerlink" title="如果下载不下来可以修改一下gems的源"></a>如果下载不下来可以修改一下gems的源</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gem sources --remove https://rubygems.org/</span><br><span class="line">gem sources -a https://ruby.taobao.org/</span><br></pre></td></tr></table></figure>
-<h1 id="如果因为代理问题无法通过gem-install的方式下载，可以直接下载-gem文件手动安装"><a href="#如果因为代理问题无法通过gem-install的方式下载，可以直接下载-gem文件手动安装" class="headerlink" title="如果因为代理问题无法通过gem install的方式下载，可以直接下载.gem文件手动安装"></a>如果因为代理问题无法通过gem install的方式下载，可以直接下载.gem文件手动安装</h1><h1 id="下载地址-https-rubygems-org-downloads-redis-3-3-3-gem"><a href="#下载地址-https-rubygems-org-downloads-redis-3-3-3-gem" class="headerlink" title="下载地址 https://rubygems.org/downloads/redis-3.3.3.gem"></a>下载地址 <a href="https://rubygems.org/downloads/redis-3.3.3.gem" target="_blank" rel="noopener">https://rubygems.org/downloads/redis-3.3.3.gem</a></h1><p>gem install –local redis-3.3.3.gem<br>创建redis集群，至少需要3个主节点，若每个主节点有一个从节点，则需要6个节点</p>
-<p>创建集群的节点，集群规划为两台物理机，6个节点：物理机10.4.121.202, 7001 7002 7003; 物理机10.4.121.203, 7001 7002 7003</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span></span><br><span class="line">mkdir redis-cluster</span><br><span class="line"><span class="built_in">cd</span> redis-cluster</span><br><span class="line">mkdir 7001 (7002 ...)</span><br></pre></td></tr></table></figure>
-<h1 id="把redis安装目录bin下的文件拷贝到每个700X目录内，每台机器伪造3个节点，端口都是7001-7003"><a href="#把redis安装目录bin下的文件拷贝到每个700X目录内，每台机器伪造3个节点，端口都是7001-7003" class="headerlink" title="把redis安装目录bin下的文件拷贝到每个700X目录内，每台机器伪造3个节点，端口都是7001~7003"></a>把redis安装目录bin下的文件拷贝到每个700X目录内，每台机器伪造3个节点，端口都是7001~7003</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp /usr/<span class="built_in">local</span>/redis/bin /usr/<span class="built_in">local</span>/redis-cluster/7001 (7002 ...)</span><br></pre></td></tr></table></figure>
-<p>其实主要拷贝的文件如下:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/redis-*/src/mkreleasehdr.sh </span><br><span class="line">/usr/<span class="built_in">local</span>/redis-*/src/redis-server </span><br><span class="line">/usr/<span class="built_in">local</span>/redis-*/src/redis-sentinel </span><br><span class="line">/usr/<span class="built_in">local</span>/redis-*/src/redis.conf</span><br></pre></td></tr></table></figure>
-<p>将各个节点的redis安装完毕之后，修改每个节点的配置文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim redis.conf</span><br></pre></td></tr></table></figure>
-<p>默认ip为127.0.0.1 最好改为其他节点机器可访问的ip，否则创建集群时无法访问对应的端口，无法创建集群，所有节点都在一个机器上的伪集群除外</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">bind</span> 10.4.121.202 (10.4.121.203) </span><br><span class="line">port 7001 (7002 7003) </span><br><span class="line">daemonize yes <span class="comment"># redis后台运行</span></span><br><span class="line">cluster-enabled <span class="literal">true</span></span><br></pre></td></tr></table></figure>
-<p>其他可选的配置的属性，可不配</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pidfile  /var/run/redis_7001.pid <span class="comment"># pidfile文件对应7001,7002,7003</span></span><br><span class="line">cluster-config-file  nodes_7001.conf <span class="comment"># 集群的配置  配置文件首次启动自动生成 7001,7002,7003</span></span><br><span class="line">cluster-node-timeout  15000 <span class="comment"># 请求超时，默认15秒</span></span><br><span class="line">appendonly  yes <span class="comment"># 开启aof日志，有需要就开启，每次写操作都会记录一条日志</span></span><br></pre></td></tr></table></figure>
-<p>分别启动每个节点的redis服务，注意，启动的时候必须使用./，像下面的命令，分两步操作。不然你会发现后台根本没有这个进程。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/redis-cluster/7001/</span><br><span class="line">./redis-server redis.conf</span><br></pre></td></tr></table></figure>
-<p>检查启动情况</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps aux | grep redis</span><br></pre></td></tr></table></figure>
-<p>启动正常，则进入redis源码目录下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/zhangqiang/redis-4.0.0/src</span><br><span class="line">cp redis-trib.rb /usr/<span class="built_in">local</span>/redis-cluster</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/redis-cluster</span><br></pre></td></tr></table></figure>
-<p>执行创建集群命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-trib.rb create --replicas 1 10.4.121.202:7001 10.4.121.202:7002 10.4.121.202:7003 10.4.121.203:7001 10.4.121.203:7002  10.4.121.202:7003</span><br></pre></td></tr></table></figure>
-<p>如果出现下面的问题：</p>
-<p>[ERR] Node 10.4.121.202:7001 is not empty. Either the node already knows other nodes (check with CLUSTER NODES) or contains some key in database 0.<br>将每个节点下 /usr/local/redis-cluster/7001 内的.aof、.rdb等本地备份文件删除<br>将新Node的集群配置文件nodes.conf删除，在/usr/local/redis-cluster/7001内。即redis.conf里面的cluster-config-file(如果提前配置过的话)<br>将 /usr/local/redis-cluster 内的node.conf删除(如果有的话)<br>10.4.121.202:7001&gt; flushdb 清空当前数据库(可省略)<br>重新关闭servers，重新启动所有的节点，再次执行集群创建脚本<br>　　其中dump.rdb是由Redis服务器自动生成的。默认情况下，每隔一段时间redis服务器程序会自动对数据库做一次遍历，把内存快照写在一个叫dump.rdb的文件里，这个持久化机制叫做SNAPSHOT。有了SNAPSHOT后，如果服务器宕机，重新启动redis服务器程序时redis会自动加载dump.rdb，将数据库状态恢复到上一次做SNAPSHOT时的状态。</p>
-<p>　　当出现下面的提示说明集群创建成功</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>Creating cluster<br>Performing hash slots allocation on 6 nodes…<br>Using 3 masters:<br>10.4.121.202:7001<br>10.4.121.203:7001<br>10.4.121.202:7002<br>Adding replica 10.4.121.203:7002 to 10.4.121.202:7001<br>Adding replica 10.4.121.202:7003 to 10.4.121.203:7001<br>Adding replica 10.4.121.202:7003 to 10.4.121.202:7002<br>M: 55235f44db4afc8c5d596bd09fd11a3124008af6 10.4.121.202:7001<br>   slots:0-5460 (5461 slots) master<br>M: b03994af450e48c1c1bf2a9723fcddd32a633a6e 10.4.121.202:7002<br>   slots:10923-16383 (5461 slots) master<br>S: 4ba458ca30ebf1418940433c1a2153a690840b03 10.4.121.202:7003<br>   replicates 8e75ff12899683e9acea855cf27f536bc02d779a<br>M: 8e75ff12899683e9acea855cf27f536bc02d779a 10.4.121.203:7001<br>   slots:5461-10922 (5462 slots) master<br>S: 444a7410ccff7aacc92517102891f24b50449fdf 10.4.121.203:7002<br>   replicates 55235f44db4afc8c5d596bd09fd11a3124008af6<br>S: 4ba458ca30ebf1418940433c1a2153a690840b03 10.4.121.202:7003<br>   replicates b03994af450e48c1c1bf2a9723fcddd32a633a6e<br>Can I set the above configuration? (type ‘yes’ to accept): yes<br>Nodes configuration updated<br>Assign a different config epoch to each node<br>Sending CLUSTER MEET messages to join the cluster<br>Waiting for the cluster to join….<br>Performing Cluster Check (using node 10.4.121.202:7001)<br>M: 55235f44db4afc8c5d596bd09fd11a3124008af6 10.4.121.202:7001<br>   slots:0-5460 (5461 slots) master<br>   1 additional replica(s)<br>M: b03994af450e48c1c1bf2a9723fcddd32a633a6e 10.4.121.202:7002<br>   slots:10923-16383 (5461 slots) master<br>   1 additional replica(s)<br>S: 4ba458ca30ebf1418940433c1a2153a690840b03 10.4.121.202:7003<br>   slots: (0 slots) slave<br>   replicates b03994af450e48c1c1bf2a9723fcddd32a633a6e<br>S: 444a7410ccff7aacc92517102891f24b50449fdf 10.4.121.203:7002<br>   slots: (0 slots) slave<br>   replicates 55235f44db4afc8c5d596bd09fd11a3124008af6<br>M: 8e75ff12899683e9acea855cf27f536bc02d779a 10.4.121.203:7001<br>   slots:5461-10922 (5462 slots) master<br>   0 additional replica(s)<br>[OK] All nodes agree about slots configuration.<br>Check for open slots…<br>Check slots coverage…<br>[OK] All 16384 slots covered.<br>登陆任意redis结点查询集群中的节点情况</p>
-</blockquote>
-</blockquote>
-</blockquote>
-<p>cd /usr/local/redis-cluster/7001<br>./redis-cli -h 10.4.121.202 -p 7001<br>10.4.121.202:7001&gt; CLUSTER INFO</p>
-<h1 id="以下是查询出的节点情况"><a href="#以下是查询出的节点情况" class="headerlink" title="以下是查询出的节点情况"></a>以下是查询出的节点情况</h1><p>cluster_state:ok<br>cluster_slots_assigned:16384<br>cluster_slots_ok:16384<br>cluster_slots_pfail:0<br>cluster_slots_fail:0<br>cluster_known_nodes:5<br>cluster_size:3<br>cluster_current_epoch:5<br>cluster_my_epoch:1<br>cluster_stats_messages_ping_sent:904<br>cluster_stats_messages_pong_sent:991<br>cluster_stats_messages_sent:1895<br>cluster_stats_messages_ping_received:987<br>cluster_stats_messages_pong_received:904<br>cluster_stats_messages_meet_received:4<br>cluster_stats_messages_received:1895<br>Java/Scala连接redis客户端：Jedis<br>SBT地址：</p>
-<p>libraryDependencies += “redis.clients” % “jedis” % “2.9.0”<br>连接单节点<br>import redis.clients.jedis.Jedis</p>
-<p>val jedis = new Jedis(“10.4.121.202”, 7001)</p>
-<p>import scala.collection.JavaConversions._</p>
-<p>val map = new mutable.HashMap<a href="">String, String</a><br>map.put(“name”, “zhangqiang”)<br>map.put(“sex”, “male”)</p>
-<p>jedis.hmset(“info_zhangqiang”, map)<br>连接池方式连接单节点<br>import redis.clients.jedis._</p>
-<p>val REDIS_HOST = “10.4.121.79”<br>val REDIS_PORT = 6379<br>// redis key 过期时间，单位秒<br>val EXPIRE = 24 <em> 60 </em> 60<br>// 可用连接实例的最大数目，默认值为8；//可用连接实例的最大数目，默认值为8；<br>// 如果赋值为-1，则表示不限制；如果pool已经分配了maxActive个jedis实例，则此时pool的状态为exhausted(耗尽)。<br>val MAX_TOTAL = 1024<br>// 控制一个pool最多有多少个状态为idle(空闲的)的jedis实例，默认值也是8。<br>val MAX_IDLE = 200<br>// 等待可用连接的最大时间，单位毫秒，默认值为-1，表示永不超时。如果超过等待时间，则直接抛出JedisConnectionException；<br>val MAX_WAIT = 10000<br>// 连接超时时间<br>val TIMEOUT = 30000<br>// 在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的；<br>val TEST_ON_BORROW: Boolean = true</p>
-<p>val config = new JedisPoolConfig<br>config.setMaxTotal(MAX_TOTAL)<br>config.setMaxIdle(MAX_IDLE)<br>config.setMaxWaitMillis(MAX_WAIT)<br>config.setTestOnBorrow(TEST_ON_BORROW)</p>
-<p>val pool = new JedisPool(config, REDIS_HOST, REDIS_PORT, TIMEOUT)</p>
-<p>val redisClient = pool.getResource</p>
-<p>redisClient.hset(“keyName”, “key”, “value”)<br>// 设置key的过期时间，单位秒<br>redisClient.expire(“keyName”, EXPIRE)<br>redisClient.close()</p>
-<p>// 在程序结束时销毁连接池<br>lazy val hook = new Thread {<br>  override def run = {<br>    println(“Execute hook thread: “ + this)<br>    pool.destroy()<br>  }<br>}<br>sys.addShutdownHook(hook.run)<br>连接集群<br>import redis.clients.jedis.{HostAndPort, JedisCluster}</p>
-<p>val jedisClusterNodes = new util.HashSet<a href="">HostAndPort</a><br>jedisClusterNodes.add(new HostAndPort(“10.4.121.202”, 7001))<br>jedisClusterNodes.add(new HostAndPort(“10.4.121.202”, 7002))<br>jedisClusterNodes.add(new HostAndPort(“10.4.121.202”, 7003))<br>jedisClusterNodes.add(new HostAndPort(“10.4.121.203”, 7001))<br>jedisClusterNodes.add(new HostAndPort(“10.4.121.203”, 7002))<br>jedisClusterNodes.add(new HostAndPort(“10.4.121.203”, 7003))<br>val clients = new JedisCluster(jedisClusterNodes)</p>
-<p>import scala.collection.JavaConversions._</p>
-<p>val map = new mutable.HashMap<a href="">String, String</a><br>map.put(“name”, “zhangqiang”)<br>map.put(“sex”, “male”)</p>
-<p>clients.hmset(“info_zhangqiang”, map)<br>异常处理<br>异常1<br>redis.clients.jedis.exceptions.JedisConnectionException: Could not get a resource from the pool at<br>…<br>Caused by: java.util.NoSuchElementException: Unable to validate object at<br>…<br>原因：当设置redis的TestOnBorrow属性为true时，validate有问题就会出现此异常。异常的意思是拿不到ping成功的Redis的链接。</p>
-<p>./redis-cli -h 10.4.121.79 -p 6379</p>
-<p>10.4.121.79:6379&gt; ping<br>(error) MISCONF Redis is configured to save RDB snapshots, but is currently not able to persist on disk. Commands that may modify the data set are disabled. Please check Redis logs for details about the error.<br>　　可以看到是rdb文件持久化的问题。</p>
-<p>vim redis.conf</p>
-<h1 id="找到下面的默认配置"><a href="#找到下面的默认配置" class="headerlink" title="找到下面的默认配置"></a>找到下面的默认配置</h1><p>dbfilename dump.rdb<br>dir ./<br>　　发现存储快照的文件名是dump.rdb，执行命令的当前目录下。去到目录中发现文件都在，也没什么问题。干掉redis重启之后。再次测试。</p>
-<p>./redis-cli -h 10.4.121.79 -p 6379</p>
-<p>10.4.121.79:6379&gt; ping<br>PONG<br>　　发现ping成功了。然后再重新执行程序。异常不见了~</p>
-
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget http://download.redis.io/releases/redis-4.0.0.tar.gz</span><br><span class="line">tar -zxvf redis-4.0.0.tar.gz </span><br><span class="line"><span class="built_in">cd</span> redis-4.0.0</span><br><span class="line">make</span><br><span class="line">make install --prefix /usr/<span class="built_in">local</span>/redis</span><br><span class="line">cp redis.conf /usr/<span class="built_in">local</span>/redis/bin</span><br><span class="line">vim redis.conf</span><br></pre></td></tr></table></figure>
+        
+          <a class="article-more-a" href="/2018/06/28/Redis安装、集群搭建/#more">more >></a>
+        
       
 
       

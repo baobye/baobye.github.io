@@ -8,17 +8,17 @@
   <link rel="dns-prefetch" href="http://baobye.com">
   <title>Redis安装、集群搭建 | baobye的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="redis单节点的安装与启动首先下载redis的安装包，http://download.redis.io/releases/redis-4.0.0.tar.gz 123456tar -zxvf redis-4.0.0.tar.gz cd redis-4.0.0makemake install --prefix /usr/local/rediscp redis.conf /usr/local/red">
+  <meta name="description" content="redis单节点的安装与启动首先下载redis的安装包，http://download.redis.io/releases/redis-4.0.0.tar.gz 1234567wget http://download.redis.io/releases/redis-4.0.0.tar.gztar -zxvf redis-4.0.0.tar.gz cd redis-4.0.0makemake ins">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis安装、集群搭建">
 <meta property="og:url" content="http://baobye.com/2018/06/28/Redis安装、集群搭建/index.html">
 <meta property="og:site_name" content="baobye的博客">
-<meta property="og:description" content="redis单节点的安装与启动首先下载redis的安装包，http://download.redis.io/releases/redis-4.0.0.tar.gz 123456tar -zxvf redis-4.0.0.tar.gz cd redis-4.0.0makemake install --prefix /usr/local/rediscp redis.conf /usr/local/red">
+<meta property="og:description" content="redis单节点的安装与启动首先下载redis的安装包，http://download.redis.io/releases/redis-4.0.0.tar.gz 1234567wget http://download.redis.io/releases/redis-4.0.0.tar.gztar -zxvf redis-4.0.0.tar.gz cd redis-4.0.0makemake ins">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-06-28T04:27:37.649Z">
+<meta property="og:updated_time" content="2018-06-28T07:20:12.977Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis安装、集群搭建">
-<meta name="twitter:description" content="redis单节点的安装与启动首先下载redis的安装包，http://download.redis.io/releases/redis-4.0.0.tar.gz 123456tar -zxvf redis-4.0.0.tar.gz cd redis-4.0.0makemake install --prefix /usr/local/rediscp redis.conf /usr/local/red">
+<meta name="twitter:description" content="redis单节点的安装与启动首先下载redis的安装包，http://download.redis.io/releases/redis-4.0.0.tar.gz 1234567wget http://download.redis.io/releases/redis-4.0.0.tar.gztar -zxvf redis-4.0.0.tar.gz cd redis-4.0.0makemake ins">
   
     <link rel="alternative" href="/atom.xml" title="baobye的博客" type="application/atom+xml">
   
@@ -179,7 +179,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>redis单节点的安装与启动<br>首先下载redis的安装包，<a href="http://download.redis.io/releases/redis-4.0.0.tar.gz" target="_blank" rel="noopener">http://download.redis.io/releases/redis-4.0.0.tar.gz</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf redis-4.0.0.tar.gz </span><br><span class="line"><span class="built_in">cd</span> redis-4.0.0</span><br><span class="line">make</span><br><span class="line">make install --prefix /usr/<span class="built_in">local</span>/redis</span><br><span class="line">cp redis.conf /usr/<span class="built_in">local</span>/redis/bin</span><br><span class="line">vim redis.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget http://download.redis.io/releases/redis-4.0.0.tar.gz</span><br><span class="line">tar -zxvf redis-4.0.0.tar.gz </span><br><span class="line"><span class="built_in">cd</span> redis-4.0.0</span><br><span class="line">make</span><br><span class="line">make install --prefix /usr/<span class="built_in">local</span>/redis</span><br><span class="line">cp redis.conf /usr/<span class="built_in">local</span>/redis/bin</span><br><span class="line">vim redis.conf</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
 <h1 id="默认是no，redis-server在前端进行，关闭shell之后，server进程就被终止了，修改为yes之后，成为后台守护进程"><a href="#默认是no，redis-server在前端进行，关闭shell之后，server进程就被终止了，修改为yes之后，成为后台守护进程" class="headerlink" title="默认是no，redis server在前端进行，关闭shell之后，server进程就被终止了，修改为yes之后，成为后台守护进程"></a>默认是no，redis server在前端进行，关闭shell之后，server进程就被终止了，修改为yes之后，成为后台守护进程</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">daemonize yes</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/redis/bin</span><br></pre></td></tr></table></figure>
 <h1 id="通过redis-conf启动redist-server，不指定启动配置文件会读取默认配置"><a href="#通过redis-conf启动redist-server，不指定启动配置文件会读取默认配置" class="headerlink" title="通过redis.conf启动redist server，不指定启动配置文件会读取默认配置"></a>通过redis.conf启动redist server，不指定启动配置文件会读取默认配置</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-server redis.conf</span><br></pre></td></tr></table></figure>
 <h1 id="启动redis交互式命令窗口"><a href="#启动redis交互式命令窗口" class="headerlink" title="启动redis交互式命令窗口"></a>启动redis交互式命令窗口</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-cli</span><br></pre></td></tr></table></figure>
@@ -335,6 +336,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2018/06/28/whatmarkdown/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          whatmarkdown
+        
+      </div>
+    </a>
   
   
     <a href="/2018/06/28/markdown/" id="article-nav-older" class="article-nav-link-wrap">
