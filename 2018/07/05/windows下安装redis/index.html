@@ -8,17 +8,17 @@
   <link rel="dns-prefetch" href="http://baobye.com">
   <title>baobye的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="windows下安装redisgithub下载地址：https://github.com/MSOpenTech/redis/tags ##MaHua有哪些功能？  这里下载的是Redis-x64-3.2.100版本，我的电脑是win7 64位，所以下载64位版本的，在运行中输入cmd，然后把目录指向解压的Redis目录。 启动命令12redis-server redis.windows.conf">
+  <meta name="description" content="windows下安装redisgithub下载地址：https://github.com/MSOpenTech/redis/tags">
 <meta property="og:type" content="article">
 <meta property="og:title" content="baobye的博客">
 <meta property="og:url" content="http://baobye.com/2018/07/05/windows下安装redis/index.html">
 <meta property="og:site_name" content="baobye的博客">
-<meta property="og:description" content="windows下安装redisgithub下载地址：https://github.com/MSOpenTech/redis/tags ##MaHua有哪些功能？  这里下载的是Redis-x64-3.2.100版本，我的电脑是win7 64位，所以下载64位版本的，在运行中输入cmd，然后把目录指向解压的Redis目录。 启动命令12redis-server redis.windows.conf">
+<meta property="og:description" content="windows下安装redisgithub下载地址：https://github.com/MSOpenTech/redis/tags">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-07-05T03:19:33.765Z">
+<meta property="og:updated_time" content="2018-07-05T04:31:31.508Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="baobye的博客">
-<meta name="twitter:description" content="windows下安装redisgithub下载地址：https://github.com/MSOpenTech/redis/tags ##MaHua有哪些功能？  这里下载的是Redis-x64-3.2.100版本，我的电脑是win7 64位，所以下载64位版本的，在运行中输入cmd，然后把目录指向解压的Redis目录。 启动命令12redis-server redis.windows.conf">
+<meta name="twitter:description" content="windows下安装redisgithub下载地址：https://github.com/MSOpenTech/redis/tags">
   
     <link rel="alternative" href="/atom.xml" title="baobye的博客" type="application/atom+xml">
   
@@ -170,14 +170,14 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="windows下安装redis"><a href="#windows下安装redis" class="headerlink" title="windows下安装redis"></a>windows下安装redis</h2><p>github下载地址：<a href="https://github.com/MSOpenTech/redis/tags" target="_blank" rel="noopener">https://github.com/MSOpenTech/redis/tags</a></p>
-<p>##MaHua有哪些功能？</p>
-<ul>
+<a id="more"></a>
+<h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><ul>
 <li>这里下载的是Redis-x64-3.2.100版本，我的电脑是win7 64位，所以下载64位版本的，在运行中输入cmd，然后把目录指向解压的Redis目录。</li>
-<li>启动命令<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">redis-server redis.windows.conf</span><br></pre></td></tr></table></figure>
+<li>启动命令<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-server redis.windows.conf</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<p>##出现的问题<br>[6644] 02 Apr 23:11:58.976 # Creating Server TCP listening socket *:6379: bind: No such file or directory</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">redis-cli.exe</span><br><span class="line">shutdown</span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line">redis-server.exe redis.windows.conf</span><br></pre></td></tr></table></figure>
+<h2 id="出现的问题"><a href="#出现的问题" class="headerlink" title="出现的问题"></a>出现的问题</h2><p>[6644] 02 Apr 23:11:58.976 # Creating Server TCP listening socket *:6379: bind: No such file or directory</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">redis-cli.exe</span><br><span class="line">shutdown</span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line">redis-server.exe redis.windows.conf</span><br></pre></td></tr></table></figure>
       
 
       
