@@ -57,7 +57,9 @@
 			
 				<li><a href="/">主页</a></li>
 	        
-				<li><a href="/tags">随笔</a></li>
+				<li><a href="/tags">标签</a></li>
+	        
+				<li><a href="/categories">分类</a></li>
 	        
 			</ul>
 		</nav>
@@ -117,6 +119,8 @@
 			
 				
 			
+				
+			
 			
 			
 			<nav class="header-nav">
@@ -134,12 +138,14 @@
 			</nav>
 
 			<nav class="header-menu js-header-menu">
-				<ul style="width: 50%">
+				<ul style="width: 70%">
 				
 				
-					<li style="width: 50%"><a href="/">主页</a></li>
+					<li style="width: 33.333333333333336%"><a href="/">主页</a></li>
 		        
-					<li style="width: 50%"><a href="/tags">随笔</a></li>
+					<li style="width: 33.333333333333336%"><a href="/tags">标签</a></li>
+		        
+					<li style="width: 33.333333333333336%"><a href="/categories">分类</a></li>
 		        
 				</ul>
 			</nav>
@@ -155,6 +161,61 @@
           </div>
           <div id="js-content" class="content-ll">
             
+  
+    <article id="post-windows下安装redis" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="windows下安装redis"><a href="#windows下安装redis" class="headerlink" title="windows下安装redis"></a>windows下安装redis</h2><p>github下载地址：<a href="https://github.com/MSOpenTech/redis/tags" target="_blank" rel="noopener">https://github.com/MSOpenTech/redis/tags</a></p>
+<p>##MaHua有哪些功能？</p>
+<ul>
+<li>这里下载的是Redis-x64-3.2.100版本，我的电脑是win7 64位，所以下载64位版本的，在运行中输入cmd，然后把目录指向解压的Redis目录。</li>
+<li>启动命令<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">redis-server redis.windows.conf</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>##出现的问题<br>[6644] 02 Apr 23:11:58.976 # Creating Server TCP listening socket *:6379: bind: No such file or directory</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">redis-cli.exe</span><br><span class="line">shutdown</span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line">redis-server.exe redis.windows.conf</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/07/05/windows下安装redis/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
   
     <article id="post-whatmarkdown" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
