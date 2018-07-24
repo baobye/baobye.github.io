@@ -6,19 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://baobye.com">
-  <title>baobye的博客</title>
+  <title>linux服务器修改ssh默认22端口方法 | baobye的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="windows下安装redisgithub下载地址：https://github.com/MSOpenTech/redis/tags">
+  <meta name="description" content="##linux服务器修改ssh默认22端口方法 *登录服务器，打开sshd_config文件 1vim /etc/ssh/sshd_config *找到#Port 22，默认是注释掉的，先把前面的#号去掉，再插入一行设置成你想要的端口号，注意不要跟现有端口号重复 12Port 22Port 26580 *保存后退出，执行重启命令1service sshd restart">
 <meta property="og:type" content="article">
-<meta property="og:title" content="baobye的博客">
-<meta property="og:url" content="http://baobye.com/2018/07/05/windows下安装redis/index.html">
+<meta property="og:title" content="linux服务器修改ssh默认22端口方法">
+<meta property="og:url" content="http://baobye.com/2018/07/24/linux服务器修改ssh默认22端口方法/index.html">
 <meta property="og:site_name" content="baobye的博客">
-<meta property="og:description" content="windows下安装redisgithub下载地址：https://github.com/MSOpenTech/redis/tags">
+<meta property="og:description" content="##linux服务器修改ssh默认22端口方法 *登录服务器，打开sshd_config文件 1vim /etc/ssh/sshd_config *找到#Port 22，默认是注释掉的，先把前面的#号去掉，再插入一行设置成你想要的端口号，注意不要跟现有端口号重复 12Port 22Port 26580 *保存后退出，执行重启命令1service sshd restart">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-07-05T04:31:31.508Z">
+<meta property="og:updated_time" content="2018-07-24T13:35:49.504Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="baobye的博客">
-<meta name="twitter:description" content="windows下安装redisgithub下载地址：https://github.com/MSOpenTech/redis/tags">
+<meta name="twitter:title" content="linux服务器修改ssh默认22端口方法">
+<meta name="twitter:description" content="##linux服务器修改ssh默认22端口方法 *登录服务器，打开sshd_config文件 1vim /etc/ssh/sshd_config *找到#Port 22，默认是注释掉的，先把前面的#号去掉，再插入一行设置成你想要的端口号，注意不要跟现有端口号重复 12Port 22Port 26580 *保存后退出，执行重启命令1service sshd restart">
   
     <link rel="alternative" href="/atom.xml" title="baobye的博客" type="application/atom+xml">
   
@@ -164,20 +164,33 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-windows下安装redis" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-linux服务器修改ssh默认22端口方法" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      linux服务器修改ssh默认22端口方法
+    </h1>
+  
+
+        
+        <a href="/2018/07/24/linux服务器修改ssh默认22端口方法/" class="archive-article-date">
+  	<time datetime="2018-07-24T13:33:24.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-07-24</time>
+</a>
+        
+      </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="windows下安装redis"><a href="#windows下安装redis" class="headerlink" title="windows下安装redis"></a>windows下安装redis</h2><p>github下载地址：<a href="https://github.com/MSOpenTech/redis/tags" target="_blank" rel="noopener">https://github.com/MSOpenTech/redis/tags</a></p>
-<a id="more"></a>
-<h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><ul>
-<li>这里下载的是Redis-x64-3.2.100版本，我的电脑是win7 64位，所以下载64位版本的，在运行中输入cmd，然后把目录指向解压的Redis目录。</li>
-<li>启动命令<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-server redis.windows.conf</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="出现的问题"><a href="#出现的问题" class="headerlink" title="出现的问题"></a>出现的问题</h2><p>[6644] 02 Apr 23:11:58.976 # Creating Server TCP listening socket *:6379: bind: No such file or directory</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">redis-cli.exe</span><br><span class="line">shutdown</span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line">redis-server.exe redis.windows.conf</span><br></pre></td></tr></table></figure>
+        <p>##linux服务器修改ssh默认22端口方法</p>
+<p>*登录服务器，打开sshd_config文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/ssh/sshd_config</span><br></pre></td></tr></table></figure>
+<p>*找到#Port 22，默认是注释掉的，先把前面的#号去掉，再插入一行设置成你想要的端口号，注意不要跟现有端口号重复</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Port 22</span><br><span class="line">Port 26580</span><br></pre></td></tr></table></figure>
+<p>*保存后退出，执行重启命令<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service sshd restart</span><br></pre></td></tr></table></figure></p>
+
       
 
       
@@ -256,7 +269,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://baobye.com/2018/07/05/windows下安装redis/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://baobye.com/2018/07/24/linux服务器修改ssh默认22端口方法/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -270,18 +283,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2018/07/24/linux服务器修改ssh默认22端口方法/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          linux服务器修改ssh默认22端口方法
-        
-      </div>
-    </a>
   
-  
-    <a href="/2018/06/28/whatmarkdown/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">whatmarkdown</div>
+    <a href="/2018/07/05/windows下安装redis/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title"></div>
       <i class="icon-circle-right"></i>
     </a>
   
