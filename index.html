@@ -182,12 +182,17 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>##linux服务器修改ssh默认22端口方法</p>
-<p>*登录服务器，打开sshd_config文件</p>
+        <h2 id="linux服务器修改ssh默认22端口方法"><a href="#linux服务器修改ssh默认22端口方法" class="headerlink" title="linux服务器修改ssh默认22端口方法"></a>linux服务器修改ssh默认22端口方法</h2><ul>
+<li>登录服务器，打开sshd_config文件</li>
+</ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/ssh/sshd_config</span><br></pre></td></tr></table></figure>
-<p>*找到#Port 22，默认是注释掉的，先把前面的#号去掉，再插入一行设置成你想要的端口号，注意不要跟现有端口号重复</p>
+<ul>
+<li>找到#Port 22，默认是注释掉的，先把前面的#号去掉，再插入一行设置成你想要的端口号，注意不要跟现有端口号重复</li>
+</ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Port 22</span><br><span class="line">Port 26580</span><br></pre></td></tr></table></figure>
-<p>*保存后退出，执行重启命令<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service sshd restart</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>保存后退出，执行重启命令<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service sshd restart</span><br></pre></td></tr></table></figure></li>
+</ul>
 
       
 
