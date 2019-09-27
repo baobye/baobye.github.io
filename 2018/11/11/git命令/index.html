@@ -15,10 +15,12 @@
 <meta property="og:site_name" content="baobye的博客">
 <meta property="og:description" content="1、初始化仓库1git init">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-11T13:32:18.100Z">
+<meta property="og:image" content="http://baobye.com/2018/11/11/git命令/git.webp">
+<meta property="og:updated_time" content="2019-09-27T01:25:06.710Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="git命令">
 <meta name="twitter:description" content="1、初始化仓库1git init">
+<meta name="twitter:image" content="http://baobye.com/2018/11/11/git命令/git.webp">
   
     <link rel="alternative" href="/atom.xml" title="baobye的博客" type="application/atom+xml">
   
@@ -184,7 +186,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>1、初始化仓库<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br></pre></td></tr></table></figure></p>
+        <p><img src="git.webp" alt="git流程图"><br>1、初始化仓库<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br></pre></td></tr></table></figure></p>
 <a id="more"></a>
 <p>2、将文件添加到仓库</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git add 文件名 <span class="comment"># 将工作区的某个文件添加到暂存区   </span></span><br><span class="line">git add -u <span class="comment"># 添加所有被tracked文件中被修改或删除的文件信息到暂存区，不处理untracked的文件</span></span><br><span class="line">git add -A <span class="comment"># 添加所有被tracked文件中被修改或删除的文件信息到暂存区，包括untracked的文件</span></span><br><span class="line">git add . <span class="comment"># 将当前工作区的所有文件都加入暂存区</span></span><br><span class="line">git add -i <span class="comment"># 进入交互界面模式，按需添加文件到缓存区</span></span><br></pre></td></tr></table></figure>
@@ -224,9 +226,21 @@
 <p>21、拉取远程分支到本地仓库</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b 本地分支 远程分支 <span class="comment"># 会在本地新建分支，并自动切换到该分支</span></span><br><span class="line">git fetch origin 远程分支:本地分支 <span class="comment"># 会在本地新建分支，但不会自动切换，还需checkout</span></span><br><span class="line">git branch --<span class="built_in">set</span>-upstream 本地分支 远程分支 <span class="comment"># 建立本地分支与远程分支的链接</span></span><br></pre></td></tr></table></figure>
 <p>22、标签命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git tag 标签 //打标签命令，默认为HEAD</span><br><span class="line">git tag //显示所有标签</span><br><span class="line">git tag 标签 �版本号 //给某个commit版本添加标签</span><br><span class="line">git show 标签 //显示某个标签的详细信息</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git tag 标签 //打标签命令，默认为HEAD</span><br><span class="line">git tag //显示所有标签</span><br><span class="line">git tag -a 标签 -m 备注版本号 //给某个commit版本添加标签</span><br><span class="line">git push origin --tags //推送到远程</span><br><span class="line">git push origin 标签 //推送指定标签</span><br><span class="line">git show 标签 //显示某个标签的详细信息</span><br></pre></td></tr></table></figure>
 <p>23、同步远程仓库更新</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git fetch  origin master</span><br><span class="line"> //从远程获取最新的到本地，首先从远程的origin的master主分支下载最新的版本到origin/master分支上，然后比较本地的master分支和origin/master分支的差别，最后进行合并。</span><br><span class="line">git fetch比git pull更加安全</span><br></pre></td></tr></table></figure>
+<p>24、远程分支操作</p>
+<ul>
+<li><p>推送到远程分支</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin dbg_lichen_star:dbg_lichen_star</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除远程分支</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git push origin :dbg_lichen_star</span><br><span class="line">or</span><br><span class="line">git push origin --delete dbg_lichen_star</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>与远程分支建立跟踪信息</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch --<span class="built_in">set</span>-upstream-to=origin/dev-prediction</span><br></pre></td></tr></table></figure>
 
       
 
@@ -374,7 +388,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2018 曹子龙
+    		&copy; 2019 曹子龙
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten

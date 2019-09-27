@@ -162,6 +162,500 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-mybatis多个数据源" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/09/27/mybatis多个数据源/">mybatis多个数据源</a>
+    </h1>
+  
+
+        
+        <a href="/2019/09/27/mybatis多个数据源/" class="archive-article-date">
+  	<time datetime="2019-09-27T01:32:29.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-09-27</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>方法为AOP动态切换数据源方法，这种方法可以自定义注解，注解在controller层，根据不同的方法访问不同的数据源。主要实现方法就是先实例化一批数据源实例Map集合，key为实例名称，value为示例，AOP以自定义的注解为切点，根据注解的value读取是哪个数据库的数据源实例key，来获取指定的数据源。</p>
+<ul>
+<li>配置多个数据源</li>
+</ul>
+<p>首先，定义一个枚举来说明一下当前数据源实例key有哪些。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">package com.percent.enums;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @Author: zilong.cao</span><br><span class="line"> * @Date: 2019/9/26 17:07</span><br><span class="line"> * @Description:</span><br><span class="line"> */</span><br><span class="line">public enum DataSourceKey &#123;</span><br><span class="line">    MASTER(<span class="string">"dataSourceMaster"</span>,<span class="string">"北京数据库"</span>),</span><br><span class="line">    SLAVE(<span class="string">"dataSourceSlave"</span>,<span class="string">"部里关注数据库"</span>);</span><br><span class="line"></span><br><span class="line">    private String name;</span><br><span class="line">    private String desc;</span><br><span class="line"></span><br><span class="line">    public String <span class="function"><span class="title">getName</span></span>() &#123;</span><br><span class="line">        <span class="built_in">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setName(String name) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public String <span class="function"><span class="title">getDesc</span></span>() &#123;</span><br><span class="line">        <span class="built_in">return</span> desc;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setDesc(String desc) &#123;</span><br><span class="line">        this.desc = desc;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    DataSourceKey(String name, String desc) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">        this.desc = desc;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>其次，使用ThreadLocal存储当前使用数据源实例的key。ThreadLocal实例化的时候给一个master的默认值，也就是默认数据源是master数据源。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">package com.percent.config;</span><br><span class="line"></span><br><span class="line">import com.percent.enums.DataSourceKey;</span><br><span class="line"></span><br><span class="line">import java.util.ArrayList;</span><br><span class="line">import java.util.List;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author zilong.cao</span><br><span class="line"> * @Date 2019-09-27 16:35:02</span><br><span class="line"> * 使用ThreadLocal存储当前使用数据源实例的key,默认master</span><br><span class="line"> */</span><br><span class="line">public class DynamicDataSourceContextHolder &#123;</span><br><span class="line">	</span><br><span class="line">	private static ThreadLocal&lt;Object&gt; CONTEXT_HOLDER = ThreadLocal.withInitial(() -&gt; DataSourceKey.MASTER.getName());</span><br><span class="line">	</span><br><span class="line">	public static List&lt;Object&gt; dataSourceKeys = new ArrayList&lt;Object&gt;();</span><br><span class="line">	</span><br><span class="line">	public static void setDataSourceKey(String key)&#123;</span><br><span class="line">		CONTEXT_HOLDER.set(key);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	public static Object <span class="function"><span class="title">getDataSourceKey</span></span>()&#123;</span><br><span class="line">		<span class="built_in">return</span> CONTEXT_HOLDER.get();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	public static void <span class="function"><span class="title">clearDataSourceKey</span></span>()&#123;</span><br><span class="line">		CONTEXT_HOLDER.remove();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	public static Boolean containDataSourceKey(String key)&#123;</span><br><span class="line">		<span class="built_in">return</span> dataSourceKeys.contains(key);</span><br><span class="line">	&#125;</span><br><span class="line">		</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>重写AbstractRoutingDataSource的determineCurrentLookupKey方法，在访问数据库时会调用该类的 determineCurrentLookupKey() 方法获取数据库实例的 key。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">package com.percent.config;</span><br><span class="line"></span><br><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line">import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author zilong.cao</span><br><span class="line"> * @Date 2019-09-27 16:35:02</span><br><span class="line"> * 该类继承自 AbstractRoutingDataSource 类，</span><br><span class="line"> * 在访问数据库时会调用该类的 determineCurrentLookupKey() 方法获取数据库实例的 key</span><br><span class="line"> */</span><br><span class="line">public class DynamicRoutingDataSource extends AbstractRoutingDataSource &#123;</span><br><span class="line"> </span><br><span class="line">	private static final Logger logger = LoggerFactory.getLogger(DynamicRoutingDataSource.class);</span><br><span class="line">	</span><br><span class="line">	@Override</span><br><span class="line">	protected Object <span class="function"><span class="title">determineCurrentLookupKey</span></span>() &#123;</span><br><span class="line">		logger.info(<span class="string">"current datasource is : &#123;&#125;"</span>,DynamicDataSourceContextHolder.getDataSourceKey());</span><br><span class="line">		<span class="built_in">return</span> DynamicDataSourceContextHolder.getDataSourceKey();</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>然后，需要实例化多个DataSource的Bean放在ApplicationContext中，这里我们使用druid的实现，定义好每个Bean的名字，名字要和枚举的name一致，</li>
+</ul>
+<p>@primary的意思就是默认使用这个Bean</p>
+<p>dynamicDataSource需要一个存储数据库实例的Map集合</p>
+<p>sqlSessionFactoryBean可以配置mybatis的相关配置</p>
+<p>transactionManager是事务配置</p>
+<p>主数据源配置类</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br></pre></td><td class="code"><pre><span class="line">package com.percent.config;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">import java.sql.SQLException;</span><br><span class="line"></span><br><span class="line">import javax.sql.DataSource;</span><br><span class="line"></span><br><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line">import org.springframework.beans.factory.annotation.Value;</span><br><span class="line">import org.springframework.boot.web.servlet.FilterRegistrationBean;</span><br><span class="line">import org.springframework.boot.web.servlet.ServletRegistrationBean;</span><br><span class="line">import org.springframework.context.annotation.Bean;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line">import org.springframework.context.annotation.Primary;</span><br><span class="line"></span><br><span class="line">import com.alibaba.druid.pool.DruidDataSource;</span><br><span class="line">import com.alibaba.druid.support.http.StatViewServlet;</span><br><span class="line">import com.alibaba.druid.support.http.WebStatFilter;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * Druid配置</span><br><span class="line">     * @author zilong.cao</span><br><span class="line">     * @Date 2019-09-27 16:35:02</span><br><span class="line">     */</span><br><span class="line">    @Configuration</span><br><span class="line">    public class DatasourceMasterConfig &#123;</span><br><span class="line">        private Logger logger = LoggerFactory.getLogger(DatasourceMasterConfig.class);</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.url&#125;</span>"</span>)</span><br><span class="line">        private String dbUrl;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.type&#125;</span>"</span>)</span><br><span class="line">        private String dbType;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.username&#125;</span>"</span>)</span><br><span class="line">        private String username;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.password&#125;</span>"</span>)</span><br><span class="line">        private String password;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.driver-class-name&#125;</span>"</span>)</span><br><span class="line">        private String driverClassName;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.initialSize&#125;</span>"</span>)</span><br><span class="line">        private int initialSize;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.minIdle&#125;</span>"</span>)</span><br><span class="line">        private int minIdle;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.maxActive&#125;</span>"</span>)</span><br><span class="line">        private int maxActive;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.maxWait&#125;</span>"</span>)</span><br><span class="line">        private int maxWait;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.timeBetweenEvictionRunsMillis&#125;</span>"</span>)</span><br><span class="line">        private int timeBetweenEvictionRunsMillis;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.minEvictableIdleTimeMillis&#125;</span>"</span>)</span><br><span class="line">        private int minEvictableIdleTimeMillis;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.validationQuery&#125;</span>"</span>)</span><br><span class="line">        private String validationQuery;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.testWhileIdle&#125;</span>"</span>)</span><br><span class="line">        private boolean testWhileIdle;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.testOnBorrow&#125;</span>"</span>)</span><br><span class="line">        private boolean testOnBorrow;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.testOnReturn&#125;</span>"</span>)</span><br><span class="line">        private boolean testOnReturn;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.poolPreparedStatements&#125;</span>"</span>)</span><br><span class="line">        private boolean poolPreparedStatements;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.filters&#125;</span>"</span>)</span><br><span class="line">        private String filters;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.connectionProperties&#125;</span>"</span>)</span><br><span class="line">        private String connectionProperties;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.useGlobalDataSourceStat&#125;</span>"</span>)</span><br><span class="line">        private boolean useGlobalDataSourceStat;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.druidLoginName&#125;</span>"</span>)</span><br><span class="line">        private String druidLoginName;</span><br><span class="line"></span><br><span class="line">        @Value(<span class="string">"<span class="variable">$&#123;spring.datasource.druidPassword&#125;</span>"</span>)</span><br><span class="line">        private String druidPassword;</span><br><span class="line"></span><br><span class="line">//  @Value(<span class="string">"<span class="variable">$&#123;hbase.datasource.url&#125;</span>"</span>)</span><br><span class="line">//  private String phoenixUrl;</span><br><span class="line">//</span><br><span class="line">//  @Value(<span class="string">"<span class="variable">$&#123;hbase.datasource.driver&#125;</span>"</span>)</span><br><span class="line">//  private String phoenixDriver;</span><br><span class="line"></span><br><span class="line">        @Bean(name=<span class="string">"dataSourceMaster"</span>,destroyMethod = <span class="string">"close"</span>, initMethod=<span class="string">"init"</span>)</span><br><span class="line">        @Primary</span><br><span class="line">        public DataSource <span class="function"><span class="title">dataSource</span></span>()&#123;</span><br><span class="line">            DruidDataSource datasource = new DruidDataSource();</span><br><span class="line">            try &#123;</span><br><span class="line">                datasource.setUrl(this.dbUrl);</span><br><span class="line">                //datasource.setDbType(dbType);</span><br><span class="line">                datasource.setUsername(username);</span><br><span class="line">                datasource.setPassword(password);</span><br><span class="line">                datasource.setDriverClassName(driverClassName);</span><br><span class="line">                datasource.setInitialSize(initialSize);</span><br><span class="line">                datasource.setMinIdle(minIdle);</span><br><span class="line">                datasource.setMaxActive(maxActive);</span><br><span class="line">                datasource.setMaxWait(maxWait);</span><br><span class="line">                datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);</span><br><span class="line">                datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);</span><br><span class="line">                datasource.setValidationQuery(validationQuery);</span><br><span class="line">                datasource.setTestWhileIdle(testWhileIdle);</span><br><span class="line">                datasource.setTestOnBorrow(testOnBorrow);</span><br><span class="line">                datasource.setTestOnReturn(testOnReturn);</span><br><span class="line">                datasource.setPoolPreparedStatements(poolPreparedStatements);</span><br><span class="line">                datasource.setFilters(filters);</span><br><span class="line">                datasource.setConnectionProperties(connectionProperties);</span><br><span class="line">//                datasource.setUseGloalDataSourceStat(useGlobalDataSourceStat);</span><br><span class="line">//      datasource.setUseGlobalDataSourceStat(useGlobalDataSourceStat);</span><br><span class="line">            &#125; catch (SQLException e) &#123;</span><br><span class="line">                logger.error(<span class="string">"druid configuration initialization filter"</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">return</span> datasource;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * druid 监控访问设置</span><br><span class="line">         * @<span class="built_in">return</span></span><br><span class="line">         */</span><br><span class="line">        @Bean</span><br><span class="line">        public ServletRegistrationBean <span class="function"><span class="title">druidServlet</span></span>() &#123;</span><br><span class="line">            ServletRegistrationBean reg = new ServletRegistrationBean();</span><br><span class="line">            reg.setServlet(new StatViewServlet());</span><br><span class="line">            reg.addUrlMappings(<span class="string">"/druid/*"</span>);  //url 匹配</span><br><span class="line">            reg.addInitParameter(<span class="string">"allow"</span>, <span class="string">"192.168.16.110,127.0.0.1"</span>); // IP白名单 (没有配置或者为空，则允许所有访问)</span><br><span class="line">            reg.addInitParameter(<span class="string">"deny"</span>, <span class="string">"192.168.16.111"</span>); //IP黑名单 (存在共同时，deny优先于allow)</span><br><span class="line">            reg.addInitParameter(<span class="string">"loginUsername"</span>, this.druidLoginName);//登录名</span><br><span class="line">            reg.addInitParameter(<span class="string">"loginPassword"</span>, this.druidPassword);//登录密码</span><br><span class="line">            reg.addInitParameter(<span class="string">"resetEnable"</span>, <span class="string">"false"</span>); // 禁用HTML页面上的“Reset All”功能</span><br><span class="line">            <span class="built_in">return</span> reg;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        //@Bean(name=<span class="string">"druidWebStatFilter"</span>)</span><br><span class="line">        public FilterRegistrationBean <span class="function"><span class="title">filterRegistrationBean</span></span>() &#123;</span><br><span class="line">            FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();</span><br><span class="line">            filterRegistrationBean.setFilter(new WebStatFilter());</span><br><span class="line">            filterRegistrationBean.addUrlPatterns(<span class="string">"/*"</span>);</span><br><span class="line">            filterRegistrationBean.addInitParameter(<span class="string">"exclusions"</span>, <span class="string">"*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"</span>); //忽略资源</span><br><span class="line">            filterRegistrationBean.addInitParameter(<span class="string">"profileEnable"</span>, <span class="string">"true"</span>);</span><br><span class="line">            filterRegistrationBean.addInitParameter(<span class="string">"principalCookieName"</span>, <span class="string">"USER_COOKIE"</span>);</span><br><span class="line">            filterRegistrationBean.addInitParameter(<span class="string">"principalSessionName"</span>, <span class="string">"USER_SESSION"</span>);</span><br><span class="line">            <span class="built_in">return</span> filterRegistrationBean;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>从数据源配置类</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Mybatis配置</span><br><span class="line"> *在该类中生成多个数据源实例并将其注入到 ApplicationContext 中</span><br><span class="line"> * @author zilong.cao</span><br><span class="line"> * @Date 2019-09-27 16:35:02</span><br><span class="line"> */</span><br><span class="line">@Configuration</span><br><span class="line">@AutoConfigureAfter(DatasourceMasterConfig.class)</span><br><span class="line">@ConfigurationProperties</span><br><span class="line">@EnableTransactionManagement</span><br><span class="line">public class MybatisConfiguration implements TransactionManagementConfigurer &#123;</span><br><span class="line"></span><br><span class="line">    private static Log logger = LogFactory.getLog(MybatisConfiguration.class);</span><br><span class="line"></span><br><span class="line">    //  配置类型别名</span><br><span class="line">    @Value(<span class="string">"<span class="variable">$&#123;mybatis.typeAliasesPackage&#125;</span>"</span>)</span><br><span class="line">    private String typeAliasesPackage;</span><br><span class="line"></span><br><span class="line">    @Value(<span class="string">"<span class="variable">$&#123;mybatis.mapperLocations&#125;</span>"</span>)</span><br><span class="line">    private String mapperLocations;</span><br><span class="line"></span><br><span class="line">    //  加载全局的配置文件</span><br><span class="line">    @Value(<span class="string">"<span class="variable">$&#123;mybatis.configLocation&#125;</span>"</span>)</span><br><span class="line">    private String configLocation;</span><br><span class="line"></span><br><span class="line">    //主数据库</span><br><span class="line">    @javax.annotation.Resource(name = <span class="string">"dataSourceMaster"</span>)</span><br><span class="line">    private DataSource master;</span><br><span class="line"></span><br><span class="line">    //从数据库</span><br><span class="line">    @javax.annotation.Resource(name = <span class="string">"dataSourceSlave"</span>)</span><br><span class="line">    private DataSource slave;</span><br><span class="line"></span><br><span class="line">    //动态数据源路由</span><br><span class="line">    @javax.annotation.Resource(name = <span class="string">"dynamicDataSource"</span>)</span><br><span class="line">    private DataSource dynamicDataSource;</span><br><span class="line"></span><br><span class="line">    // 提供SqlSeesion</span><br><span class="line">    @Bean(name = <span class="string">"sqlSessionFactory"</span>)</span><br><span class="line">    @Primary</span><br><span class="line">    public SqlSessionFactory <span class="function"><span class="title">sqlSessionFactory</span></span>() &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();</span><br><span class="line">            sessionFactoryBean.setDataSource(dynamicDataSource());</span><br><span class="line"></span><br><span class="line">            // 读取配置</span><br><span class="line">            sessionFactoryBean.setTypeAliasesPackage(typeAliasesPackage);</span><br><span class="line"></span><br><span class="line">            //设置mapper.xml文件所在位置</span><br><span class="line">            Resource[] resources = new PathMatchingResourcePatternResolver()</span><br><span class="line">                    .getResources(mapperLocations);</span><br><span class="line">            sessionFactoryBean.setMapperLocations(resources);</span><br><span class="line">            //设置mybatis-config.xml配置文件位置</span><br><span class="line">            sessionFactoryBean.setConfigLocation(new DefaultResourceLoader().getResource(configLocation));</span><br><span class="line"></span><br><span class="line">            //添加分页插件、打印sql插件</span><br><span class="line">            Interceptor[] plugins = new Interceptor[]&#123;pageHelper(), sqlPrintInterceptor()&#125;;</span><br><span class="line">            sessionFactoryBean.setPlugins(plugins);</span><br><span class="line"></span><br><span class="line">            <span class="built_in">return</span> sessionFactoryBean.getObject();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            logger.error(<span class="string">"mybatis resolver mapper*xml is error"</span>, e);</span><br><span class="line">            <span class="built_in">return</span> null;</span><br><span class="line">        &#125; catch (Exception e) &#123;</span><br><span class="line">            logger.error(<span class="string">"mybatis sqlSessionFactoryBean create error"</span>, e);</span><br><span class="line">            <span class="built_in">return</span> null;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) &#123;</span><br><span class="line">        <span class="built_in">return</span> new SqlSessionTemplate(sqlSessionFactory);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean(name = <span class="string">"dynamicDataSource"</span>)</span><br><span class="line">    public DataSource <span class="function"><span class="title">dynamicDataSource</span></span>()&#123;</span><br><span class="line">        DynamicRoutingDataSource dynamicRoutingDataSource = new DynamicRoutingDataSource();</span><br><span class="line"></span><br><span class="line">        Map&lt;Object, Object&gt; dataSourceMap = new HashMap&lt;Object, Object&gt;(2);</span><br><span class="line">        dataSourceMap.put(DataSourceKey.MASTER.getName(),master);</span><br><span class="line">        dataSourceMap.put(DataSourceKey.SLAVE.getName(),slave);</span><br><span class="line"></span><br><span class="line">        dynamicRoutingDataSource.setDefaultTargetDataSource(master);</span><br><span class="line">        dynamicRoutingDataSource.setTargetDataSources(dataSourceMap);</span><br><span class="line"></span><br><span class="line">        DynamicDataSourceContextHolder.dataSourceKeys.addAll(dataSourceMap.keySet());</span><br><span class="line"></span><br><span class="line">        <span class="built_in">return</span> dynamicRoutingDataSource;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //事务管理</span><br><span class="line">    @Bean</span><br><span class="line">    public PlatformTransactionManager <span class="function"><span class="title">annotationDrivenTransactionManager</span></span>() &#123;</span><br><span class="line">        //动态数据源</span><br><span class="line">        <span class="built_in">return</span> new DataSourceTransactionManager(dynamicDataSource());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //将要执行的sql进行日志打印(不想拦截，就把这方法注释掉)</span><br><span class="line">    @Bean</span><br><span class="line">    public SqlPrintInterceptor <span class="function"><span class="title">sqlPrintInterceptor</span></span>() &#123;</span><br><span class="line">        <span class="built_in">return</span> new SqlPrintInterceptor();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 分页插件</span><br><span class="line">     */</span><br><span class="line">    @Bean</span><br><span class="line">    public PageHelper <span class="function"><span class="title">pageHelper</span></span>() &#123;</span><br><span class="line">        PageHelper pageHelper = new PageHelper();</span><br><span class="line">        Properties p = new Properties();</span><br><span class="line">        p.setProperty(<span class="string">"offsetAsPageNum"</span>, <span class="string">"true"</span>);</span><br><span class="line">        p.setProperty(<span class="string">"rowBoundsWithCount"</span>, <span class="string">"true"</span>);</span><br><span class="line">        p.setProperty(<span class="string">"reasonable"</span>, <span class="string">"true"</span>);</span><br><span class="line">        p.setProperty(<span class="string">"returnPageInfo"</span>, <span class="string">"check"</span>);</span><br><span class="line">        p.setProperty(<span class="string">"params"</span>, <span class="string">"count=countSql"</span>);</span><br><span class="line">        pageHelper.setProperties(p);</span><br><span class="line">        <span class="built_in">return</span> pageHelper;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>自定义注解<br>为了使用AOP代理特定的方法，我们就可以自定义注解</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">package com.percent.config;</span><br><span class="line"></span><br><span class="line">import com.percent.enums.DataSourceKey;</span><br><span class="line"></span><br><span class="line">import java.lang.annotation.*;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 自定义注解</span><br><span class="line"> * @author zilong.cao</span><br><span class="line"> * @Date 2019-09-27 16:35:02</span><br><span class="line"> */</span><br><span class="line">@Target(&#123;ElementType.METHOD, ElementType.TYPE&#125;)</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@Documented</span><br><span class="line">public @interface TargetDataSource &#123;</span><br><span class="line">	</span><br><span class="line">	DataSourceKey value() default DataSourceKey.MASTER;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>AOP动态切换数据源</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">package com.percent.config;</span><br><span class="line"></span><br><span class="line">import org.aspectj.lang.JoinPoint;</span><br><span class="line">import org.aspectj.lang.annotation.After;</span><br><span class="line">import org.aspectj.lang.annotation.Aspect;</span><br><span class="line">import org.aspectj.lang.annotation.Before;</span><br><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * AOP处理动态数据源</span><br><span class="line"> * @author zilong.cao</span><br><span class="line"> * @Date 2019-09-27 16:35:02</span><br><span class="line"> */</span><br><span class="line">@Aspect</span><br><span class="line">@Component</span><br><span class="line">public class DynamicDataSourceAspect &#123;</span><br><span class="line"> </span><br><span class="line">	private static final Logger logger = LoggerFactory.getLogger(DynamicDataSourceAspect.class);</span><br><span class="line">	</span><br><span class="line">	@Before(<span class="string">"@annotation(targetDataSource))"</span>)</span><br><span class="line">	public void switchDataSource(JoinPoint joinPoint, TargetDataSource targetDataSource)&#123;</span><br><span class="line">		<span class="keyword">if</span> ( !DynamicDataSourceContextHolder.containDataSourceKey( targetDataSource.value().getName() ) ) &#123;</span><br><span class="line">			logger.error(<span class="string">"DataSource [&#123;&#125;] doesn't exist, use default DataSource [&#123;&#125;]"</span>, targetDataSource.value());</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            DynamicDataSourceContextHolder.setDataSourceKey( targetDataSource.value().getName() );</span><br><span class="line">            logger.info(<span class="string">"Switch DataSource to [&#123;&#125;] in Method [&#123;&#125;]"</span>,</span><br><span class="line">                    DynamicDataSourceContextHolder.getDataSourceKey(), joinPoint.getSignature());</span><br><span class="line">        &#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	@After(<span class="string">"@annotation(targetDataSource))"</span>)</span><br><span class="line">	public void restoreDataSource(JoinPoint joinPoint,TargetDataSource targetDataSource)&#123;</span><br><span class="line">        DynamicDataSourceContextHolder.clearDataSourceKey();</span><br><span class="line">        logger.info(<span class="string">"Restore DataSource to [&#123;&#125;] in Method [&#123;&#125;]"</span>,</span><br><span class="line">                DynamicDataSourceContextHolder.getDataSourceKey(), joinPoint.getSignature());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在controller层使用，在不同的方法上添加自定义注解来使用不同的数据源。MASTER是默认数据源，可以不使用注解。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">  * 测试动态数据源</span><br><span class="line">  */</span><br><span class="line"> @RequestMapping(value = <span class="string">"/test"</span>, method = RequestMethod.GET)</span><br><span class="line"> @ApiOperation(value = <span class="string">"预警通知列表 test"</span> ,nickname = <span class="string">"test"</span>)</span><br><span class="line"> @TargetDataSource(DataSourceKey.SLAVE)</span><br><span class="line"> public ServiceResult <span class="function"><span class="title">noticeList</span></span>() &#123;</span><br><span class="line">     List&lt;Map&gt; list =  warningService.getTestList();</span><br><span class="line">     <span class="built_in">return</span> new ServiceResult&lt;&gt;(<span class="literal">true</span>, list, <span class="string">"添加数据成功"</span>, 200);</span><br><span class="line"></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/09/27/mybatis多个数据源/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-es学习" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/29/es学习/">es学习</a>
+    </h1>
+  
+
+        
+        <a href="/2018/11/29/es学习/" class="archive-article-date">
+  	<time datetime="2018-11-29T05:58:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Elasticsearch是什么？"><a href="#Elasticsearch是什么？" class="headerlink" title="Elasticsearch是什么？"></a>Elasticsearch是什么？</h3><p>Elastic Search 是一个基于Lucene构建的开源，分布式搜索引擎。设计用于云计算中，实时搜索，稳定，可靠，快速，安装使用方便。支持通过HTTP使用JSON进行数据索引。</p>
+<ul>
+<li><p>分布式的实时文件存储，每个字段都被索引并可被搜索</p>
+</li>
+<li><p>实时分析的分布式搜索引擎</p>
+</li>
+<li><p>可以扩展到上百台服务器，处理PB级结构化或非结构化数据</p>
+</li>
+</ul>
+        
+          <a class="article-more-a" href="/2018/11/29/es学习/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/11/29/es学习/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-nginx命令与配置" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/29/nginx命令与配置/">nginx命令与配置</a>
+    </h1>
+  
+
+        
+        <a href="/2018/11/29/nginx命令与配置/" class="archive-article-date">
+  	<time datetime="2018-11-29T02:44:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li>nginx 启动命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -c /usr/<span class="built_in">local</span>/nginx/conf/nginx.conf</span><br></pre></td></tr></table></figure>
+        
+          <a class="article-more-a" href="/2018/11/29/nginx命令与配置/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/11/29/nginx命令与配置/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-es6的10大新特性" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/23/es6的10大新特性/">es6的10大新特性</a>
+    </h1>
+  
+
+        
+        <a href="/2018/11/23/es6的10大新特性/" class="archive-article-date">
+  	<time datetime="2018-11-23T02:06:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-23</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-为函数的参数设置默认值"><a href="#1-为函数的参数设置默认值" class="headerlink" title="1.为函数的参数设置默认值"></a>1.为函数的参数设置默认值</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> foo(height = 50 ,weight = 20)&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">不使用  var height = height || 50;</span><br></pre></td></tr></table></figure>
+        
+          <a class="article-more-a" href="/2018/11/23/es6的10大新特性/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/11/23/es6的10大新特性/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-linux下webpack不自动重启" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/22/linux下webpack不自动重启/">linux下webpack不自动重启</a>
+    </h1>
+  
+
+        
+        <a href="/2018/11/22/linux下webpack不自动重启/" class="archive-article-date">
+  	<time datetime="2018-11-22T01:45:29.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-22</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="linux下webpack-dev-server修改文件后不自动重启"><a href="#linux下webpack-dev-server修改文件后不自动重启" class="headerlink" title="linux下webpack-dev-server修改文件后不自动重启"></a>linux下webpack-dev-server修改文件后不自动重启</h1><h2 id="1、Debian-RedHat-系统"><a href="#1、Debian-RedHat-系统" class="headerlink" title="1、Debian,RedHat 系统"></a>1、Debian,RedHat 系统</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf &amp;&amp; sudo sysctl -p</span><br></pre></td></tr></table></figure>
+<h2 id="2、ArchLinux-系统"><a href="#2、ArchLinux-系统" class="headerlink" title="2、ArchLinux 系统"></a>2、ArchLinux 系统</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> fs.inotify.max_user_watches=524288 | sudo tee /etc/sysctl.d/40-max-user-watches.conf &amp;&amp; sudo sysctl --system</span><br></pre></td></tr></table></figure>
+<p>参考网站：<a href="https://blog.csdn.net/xs20691718/article/details/81146985" target="_blank" rel="noopener">https://blog.csdn.net/xs20691718/article/details/81146985</a><br><a href="https://github.com/guard/listen/wiki/Increasing-the-amount-of-inotify-watchers" target="_blank" rel="noopener">https://github.com/guard/listen/wiki/Increasing-the-amount-of-inotify-watchers</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/11/22/linux下webpack不自动重启/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-npm命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/20/npm命令/">npm命令</a>
+    </h1>
+  
+
+        
+        <a href="/2018/11/20/npm命令/" class="archive-article-date">
+  	<time datetime="2018-11-20T08:42:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-20</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/11/20/npm命令/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-设计模式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/20/设计模式/">设计模式</a>
+    </h1>
+  
+
+        
+        <a href="/2018/11/20/设计模式/" class="archive-article-date">
+  	<time datetime="2018-11-20T06:39:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-20</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/11/20/设计模式/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-jenkins" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -251,7 +745,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>1、初始化仓库<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br></pre></td></tr></table></figure></p>
+        <p><img src="git.webp" alt="git流程图"><br>1、初始化仓库<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br></pre></td></tr></table></figure></p>
         
           <a class="article-more-a" href="/2018/11/11/git命令/#more">more >></a>
         
@@ -369,389 +863,10 @@
 
 
   
-    <article id="post-windows下安装redis" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="windows下安装redis"><a href="#windows下安装redis" class="headerlink" title="windows下安装redis"></a>windows下安装redis</h2><p>github下载地址：<a href="https://github.com/MSOpenTech/redis/tags" target="_blank" rel="noopener">https://github.com/MSOpenTech/redis/tags</a></p>
-        
-          <a class="article-more-a" href="/2018/07/05/windows下安装redis/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/07/05/windows下安装redis/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
   
-    <article id="post-whatmarkdown" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/28/whatmarkdown/">whatmarkdown</a>
-    </h1>
-  
-
-        
-        <a href="/2018/06/28/whatmarkdown/" class="archive-article-date">
-  	<time datetime="2018-06-28T07:52:51.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-28</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><img src="mahua-logo.jpg" alt="mahua"></p>
-<p>##MaHua是什么?<br>一个在线编辑markdown文档的编辑器</p>
-<p>向Mac下优秀的markdown编辑器mou致敬</p>
-<p>##MaHua有哪些功能？</p>
-<ul>
-<li>方便的<code>导入导出</code>功能<ul>
-<li>直接把一个markdown的文本文件拖放到当前这个页面就可以了</li>
-<li>导出为一个html格式的文件，样式一点也不会丢失</li>
-</ul>
-</li>
-<li>编辑和预览<code>同步滚动</code>，所见即所得（右上角设置）</li>
-<li><code>VIM快捷键</code>支持，方便vim党们快速的操作 （右上角设置）</li>
-<li>强大的<code>自定义CSS</code>功能，方便定制自己的展示</li>
-<li>有数量也有质量的<code>主题</code>,编辑器和预览区域</li>
-<li>完美兼容<code>Github</code>的markdown语法</li>
-<li>预览区域<code>代码高亮</code></li>
-<li>所有选项自动记忆</li>
-</ul>
-<p>##有问题反馈<br>在使用中有任何问题，欢迎反馈给我，可以用以下联系方式跟我交流</p>
-<ul>
-<li>邮件(dev.hubo#gmail.com, 把#换成@)</li>
-<li>QQ: 287759234</li>
-<li>weibo: <a href="http://weibo.com/ihubo" target="_blank" rel="noopener">@草依山</a></li>
-<li>twitter: <a href="http://twitter.com/ihubo" target="_blank" rel="noopener">@ihubo</a></li>
-</ul>
-<p>##捐助开发者<br>在兴趣的驱动下,写一个<code>免费</code>的东西，有欣喜，也还有汗水，希望你喜欢我的作品，同时也能支持一下。<br>当然，有钱捧个钱场（右上角的爱心标志，支持支付宝和PayPal捐助），没钱捧个人场，谢谢各位。</p>
-<p>##感激<br>感谢以下的项目,排名不分先后</p>
-<ul>
-<li><a href="http://mouapp.com/" target="_blank" rel="noopener">mou</a> </li>
-<li><a href="http://ace.ajax.org/" target="_blank" rel="noopener">ace</a></li>
-<li><a href="http://jquery.com" target="_blank" rel="noopener">jquery</a></li>
-</ul>
-<p>##关于作者</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> ihubo = &#123;</span><br><span class="line">  nickName  : <span class="string">"草依山"</span>,</span><br><span class="line">  site : <span class="string">"http://jser.me"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/28/whatmarkdown/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Redis" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/28/Redis/">Redis安装、集群搭建</a>
-    </h1>
-  
-
-        
-        <a href="/2018/06/28/Redis/" class="archive-article-date">
-  	<time datetime="2018-06-28T02:53:08.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-28</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>redis单节点的安装与启动<br>首先下载redis的安装包，<a href="http://download.redis.io/releases/redis-4.0.0.tar.gz" target="_blank" rel="noopener">http://download.redis.io/releases/redis-4.0.0.tar.gz</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget http://download.redis.io/releases/redis-4.0.0.tar.gz</span><br><span class="line">tar -zxvf redis-4.0.0.tar.gz </span><br><span class="line"><span class="built_in">cd</span> redis-4.0.0</span><br><span class="line">make</span><br><span class="line">make install --prefix /usr/<span class="built_in">local</span>/redis</span><br><span class="line">cp redis.conf /usr/<span class="built_in">local</span>/redis/bin</span><br><span class="line">vim redis.conf</span><br></pre></td></tr></table></figure>
-        
-          <a class="article-more-a" href="/2018/06/28/Redis/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/28/Redis/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-my-first-blog" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/27/my-first-blog/">&#39;my-first-blog&#39;</a>
-    </h1>
-  
-
-        
-        <a href="/2018/06/27/my-first-blog/" class="archive-article-date">
-  	<time datetime="2018-06-27T11:41:51.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-27</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">tag1</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">tag2</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">tag3</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/27/my-first-blog/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-hello-world" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/27/hello-world/">Hello World</a>
-    </h1>
-  
-
-        
-        <a href="/2018/06/27/hello-world/" class="archive-article-date">
-  	<time datetime="2018-06-27T11:22:36.195Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-27</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">tag1</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">tag2</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">tag3</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/27/hello-world/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    </nav>
   
 
 
@@ -762,7 +877,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2018 曹子龙
+    		&copy; 2019 曹子龙
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
